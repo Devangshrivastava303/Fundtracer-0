@@ -29,5 +29,5 @@ urlpatterns = [
     
     # Users Management
     path('users/', admin_list_users, name='list_users'),
-    path('users/<str:user_id>/', admin_get_user_detail, name='user_detail'),
+    path('users/<int:user_id>/', admin_get_user_detail, name='user_detail'),
 ]

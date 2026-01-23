@@ -34,7 +34,6 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'corsheaders',
-    'storages',  # django-storages for S3
 
     # Default Django apps
     'django.contrib.admin',
@@ -91,7 +90,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "fundtracerr_db",
+        "NAME": "fundtracer_db",
         "USER": "postgres",       # Change if different
         "PASSWORD": "Postgre@715",  # Your DB password
         "HOST": "localhost",
@@ -129,40 +128,14 @@ USE_TZ = True
 
 
 # ----------------------------
-# STATIC & MEDIA FILES (AWS S3)
+# STATIC & MEDIA FILES (LOCAL STORAGE)
 # ----------------------------
-# Check if we're using S3 or local storage
-USE_S3 = os.getenv('USE_S3', 'True') == 'True'
+# Local Storage Configuration for Development
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-if USE_S3:
-    # AWS S3 Configuration
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'eu-north-1')
-    AWS_S3_CUSTOM_DOMAIN = os.getenv('AWS_S3_CUSTOM_DOMAIN')
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-    
-    # S3 Static & Media Settings
-    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
-    STATIC_ROOT = 'static/'
-    STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-    MEDIA_ROOT = 'media/'
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-else:
-    # Local Storage Configuration
-    STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
-    
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-
-
-AWS_DEFAULT_ACL = None
-AWS_QUERYSTRING_AUTH = False
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # ----------------------------
 # DEFAULT PRIMARY KEY FIELD TYPE
