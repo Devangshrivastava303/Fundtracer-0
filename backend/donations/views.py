@@ -47,6 +47,12 @@ def create_donation(request):
                 'error': 'Campaign not found'
             }, status=status.HTTP_404_NOT_FOUND)
         
+        # Check if campaign goal has been reached
+        if campaign.goal_reached:
+            return Response({
+                'error': 'Campaign goal has been reached. No more donations are being accepted for this campaign.'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         donation = serializer.save()
         
         # Update campaign raised amount
@@ -73,7 +79,7 @@ def create_donation(request):
 def get_user_donations(request):
     """
     Get current user's donation history
-    GET /api/donations/my-donations/
+    GET /api/donations/
     """
     donations = Donation.objects.filter(donor=request.user)
     

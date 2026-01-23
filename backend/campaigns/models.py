@@ -57,3 +57,38 @@ class Campaign(models.Model):
         if self.goal_amount > 0:
             return (self.raised_amount / self.goal_amount) * 100
         return 0
+
+    @property
+    def goal_reached(self):
+        """Check if campaign has reached its goal amount"""
+        return self.raised_amount >= self.goal_amount
+
+
+class Milestone(models.Model):
+    """Milestones for campaign progress tracking"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='milestones')
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    order = models.PositiveIntegerField(default=0)  # Order in sequence
+    due_date = models.DateTimeField()  # When milestone should be completed
+    image = models.ImageField(upload_to='milestones/', null=True, blank=True)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order']
+        unique_together = ('campaign', 'order')
+
+    def __str__(self):
+        return f"{self.campaign.title} - Milestone {self.order}: {self.title}"
+
+    @property
+    def is_overdue(self):
+        """Check if milestone is overdue"""
+        from django.utils import timezone
+        if not self.is_completed and self.due_date < timezone.now():
+            return True
+        return False

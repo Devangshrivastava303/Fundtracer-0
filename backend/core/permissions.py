@@ -1,39 +1,43 @@
-"""
-Permissions for FundTracer API.
-"""
-
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission
 
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
+class IsOwner(BasePermission):
     """
-    Allow users to edit only their own objects.
+    Permission to only allow owners of an object to edit it.
     """
-
     def has_object_permission(self, request, view, obj):
-        # Allow GET, HEAD, OPTIONS to any request
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        # Allow edit only to the creator
-        return obj.created_by == request.user or request.user.is_staff
+        return obj.created_by == request.user
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
+class IsNGO(BasePermission):
     """
-    Allow admin users to perform all actions, others can only read.
+    Permission to only allow NGO users.
     """
-
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user and request.user.is_staff
+        return request.user and request.user.role == 'ngo'
 
 
-class IsVerified(permissions.BasePermission):
+class IsDonor(BasePermission):
     """
-    Allow only verified users to perform certain actions.
+    Permission to only allow Donor users.
     """
-
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.profile.is_organization_verified
+        return request.user and request.user.role == 'donor'
+
+
+class IsAdmin(BasePermission):
+    """
+    Permission to only allow Admin users.
+    """
+    def has_permission(self, request, view):
+        return request.user and request.user.role == 'admin'
+
+
+class IsAuthenticatedOrReadOnly(BasePermission):
+    """
+    Allows authenticated users to perform any action.
+    Unauthenticated users can only perform safe methods (GET, HEAD, OPTIONS).
+    """
+    def has_permission(self, request, view):
+        return bool(request.user and request.user.is_authenticated) or \
+               request.method in ['GET', 'HEAD', 'OPTIONS']

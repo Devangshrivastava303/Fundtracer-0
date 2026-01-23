@@ -8,6 +8,7 @@ from campaigns.serializers import (
     CampaignListSerializer, CampaignDetailSerializer,
     CampaignCreateUpdateSerializer, CampaignCategorySerializer
 )
+from core.permissions import IsOwner, IsNGO
 from django.db.models import Q
 
 
@@ -35,10 +36,10 @@ def list_campaigns(request):
     if category:
         queryset = queryset.filter(category=category)
     
-    if status_filter == 'INDIVIDUAL':
-        queryset = queryset.filter(campaign_type='INDIVIDUAL')
-    elif status_filter == 'NGO':
-        queryset = queryset.filter(campaign_type='NGO')
+    if status_filter == 'active':
+        queryset = queryset.filter(is_active=True)
+    elif status_filter == 'inactive':
+        queryset = queryset.filter(is_active=False)
     
     if search:
         queryset = queryset.filter(
@@ -115,7 +116,7 @@ def create_campaign(request):
 
 # -------------------- UPDATE CAMPAIGN --------------------
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsOwner])
 def update_campaign(request, id):
     """
     Update campaign (owner only)
@@ -161,7 +162,7 @@ def update_campaign(request, id):
 
 # -------------------- DELETE CAMPAIGN --------------------
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, IsOwner])
 def delete_campaign(request, id):
     """
     Delete campaign (owner only)
@@ -226,7 +227,7 @@ def get_campaign_stats(request, id):
 def list_categories(request):
     """
     List all campaign categories
-    GET /api/campaigns/categories/
+    GET /api/categories/
     """
     from campaigns.models import CampaignCategory
     

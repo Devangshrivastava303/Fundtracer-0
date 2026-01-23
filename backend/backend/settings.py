@@ -20,7 +20,7 @@ SECRET_KEY = 'django-insecure-3bo167*i!szsg=qd6u47=q&w)_*jnrty&n7$dr(t)zp)q(h)dy
 
 DEBUG = True  # Turn off in production
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]  # For local dev
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "testserver"]  # For local dev
 
 
 # ----------------------------
@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'accounts',
     'campaigns',
     'donations',
+    'core',
 
     # Third-party apps
     'rest_framework',
@@ -128,14 +129,17 @@ USE_TZ = True
 
 
 # ----------------------------
-# STATIC & MEDIA FILES (LOCAL STORAGE)
+# STATIC & MEDIA FILES (LOCAL STORAGE ONLY)
 # ----------------------------
-# Local Storage Configuration for Development
+# Using local file storage for development
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Local storage backend for uploads
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 # ----------------------------
 # DEFAULT PRIMARY KEY FIELD TYPE
@@ -186,3 +190,10 @@ SIMPLE_JWT = {
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+
+
+# ----------------------------
+# AUTHENTICATION
+# ----------------------------
+AUTH_USER_MODEL = "accounts.User" # Custom user model
+

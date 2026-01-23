@@ -36,23 +36,3 @@ class DonationReceiptSerializer(serializers.ModelSerializer):
         model = DonationReceipt
         fields = ['id', 'donation', 'receipt_number', 'receipt_pdf', 'created_at']
         read_only_fields = ['id', 'created_at']
-    
-    class Meta:
-        model = Donation
-        fields = [
-            'id', 'donor_name', 'campaign_title', 'amount', 
-            'payment_method', 'status', 'is_anonymous', 'created_at'
-        ]
-
-
-class DonationCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Donation
-        fields = [
-            'campaign', 'amount', 'payment_method', 
-            'message', 'is_anonymous'
-        ]
-    
-    def create(self, validated_data):
-        validated_data['donor'] = self.context['request'].user
-        return super().create(validated_data)

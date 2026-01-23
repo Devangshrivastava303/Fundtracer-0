@@ -170,68 +170,8 @@ def refresh_token_view(request):
         }, status=status.HTTP_401_UNAUTHORIZED)
 
 
-# -------------------- PHONE LOGIN --------------------
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def phone_login(request):
-    """
-    User login with phone number
-    POST /api/auth/phone-login/
-    Required fields: phone_number
-    """
-    phone_number = request.data.get('phone_number')
-    
-    if not phone_number:
-        return Response({
-            'error': 'Phone number is required'
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        user = User.objects.get(phone_number=phone_number)
-        tokens = get_tokens_for_user(user)
-        user_data = UserSerializer(user).data
-        
-        return Response({
-            'message': 'Phone login successful',
-            'user': user_data,
-            'access_token': tokens['access_token'],
-            'refresh_token': tokens['refresh_token'],
-            'expires_in': tokens['expires_in']
-        }, status=status.HTTP_200_OK)
-    except User.DoesNotExist:
-        return Response({
-            'error': 'User with this phone number not found'
-        }, status=status.HTTP_404_NOT_FOUND)
 
 
-# -------------------- PHONE SIGNUP --------------------
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def phone_signup(request):
-    """
-    User signup with phone number
-    POST /api/auth/phone-signup/
-    Required fields: phone_number, full_name, email, password, password_confirm, role
-    """
-    serializer = SignupSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        user = serializer.save()
-        tokens = get_tokens_for_user(user)
-        user_data = UserSerializer(user).data
-        
-        return Response({
-            'message': 'Phone signup successful',
-            'user': user_data,
-            'access_token': tokens['access_token'],
-            'refresh_token': tokens['refresh_token'],
-            'expires_in': tokens['expires_in']
-        }, status=status.HTTP_201_CREATED)
-    
-    return Response({
-        'error': 'Phone signup failed',
-        'errors': serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # -------------------- CHANGE PASSWORD --------------------
