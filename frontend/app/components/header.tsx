@@ -60,7 +60,7 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#a7b8e0]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -85,8 +85,23 @@ export function Header() {
             >
               How It Works
             </Link>
-            <Link href="/ngos" className="text-slate-600 hover:text-blue-600 transition">
+            <Link
+              href="/ngos"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
               NGOs
+            </Link>
+            <Link
+              href="/faqs"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              FAQs
+            </Link>
+            <Link
+              href="/help-center"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Help Center
             </Link>
             <Link href="/about" className="hover:text-blue-600 transition-colors">
               About Us
@@ -155,6 +170,18 @@ export function Header() {
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 NGOs
+              </Link>
+              <Link
+                href="/faqs"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                FAQs
+              </Link>
+              <Link
+                href="/help-center"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Help Center
               </Link>
               <Link
                 href="#about"

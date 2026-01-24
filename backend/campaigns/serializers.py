@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from campaigns.models import Campaign, CampaignCategory, Milestone, CampaignLike
+from campaigns.models import Campaign, CampaignCategory, Milestone
 from accounts.serializers import UserSerializer
 
 
@@ -15,16 +15,13 @@ class CampaignListSerializer(serializers.ModelSerializer):
     progress_percentage = serializers.SerializerMethodField()
     donation_count = serializers.SerializerMethodField()
     goal_reached = serializers.SerializerMethodField()
-    is_liked = serializers.SerializerMethodField()
-    likes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Campaign
         fields = [
             'id', 'title', 'description', 'goal_amount', 'raised_amount',
             'progress_percentage', 'category', 'campaign_type', 'is_active',
-            'image', 'fundtracer_verified', 'created_by', 'donation_count', 'goal_reached', 
-            'is_liked', 'likes_count', 'created_at'
+            'image', 'fundtracer_verified', 'created_by', 'donation_count', 'goal_reached', 'created_at'
         ]
 
     def get_progress_percentage(self, obj):
@@ -38,15 +35,6 @@ class CampaignListSerializer(serializers.ModelSerializer):
     def get_goal_reached(self, obj):
         return obj.goal_reached
 
-    def get_is_liked(self, obj):
-        request = self.context.get('request')
-        if request and request.user and request.user.is_authenticated:
-            return CampaignLike.objects.filter(user=request.user, campaign=obj).exists()
-        return False
-
-    def get_likes_count(self, obj):
-        return obj.likes.count()
-
 
 class CampaignDetailSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
@@ -55,16 +43,13 @@ class CampaignDetailSerializer(serializers.ModelSerializer):
     is_owner = serializers.SerializerMethodField()
     donation_count = serializers.SerializerMethodField()
     goal_reached = serializers.SerializerMethodField()
-    is_liked = serializers.SerializerMethodField()
-    likes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Campaign
         fields = [
             'id', 'title', 'description', 'goal_amount', 'raised_amount',
             'progress_percentage', 'category', 'campaign_type', 'is_active',
-            'image', 'fundtracer_verified', 'created_by', 'is_owner', 'donation_count', 
-            'goal_reached', 'is_liked', 'likes_count', 'created_at'
+            'image', 'fundtracer_verified', 'created_by', 'is_owner', 'donation_count', 'goal_reached', 'created_at'
         ]
 
     def get_progress_percentage(self, obj):
@@ -83,15 +68,6 @@ class CampaignDetailSerializer(serializers.ModelSerializer):
 
     def get_goal_reached(self, obj):
         return obj.goal_reached
-
-    def get_is_liked(self, obj):
-        request = self.context.get('request')
-        if request and request.user and request.user.is_authenticated:
-            return CampaignLike.objects.filter(user=request.user, campaign=obj).exists()
-        return False
-
-    def get_likes_count(self, obj):
-        return obj.likes.count()
 
 
 class CampaignCreateUpdateSerializer(serializers.ModelSerializer):

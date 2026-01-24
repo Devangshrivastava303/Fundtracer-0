@@ -15,16 +15,12 @@ urlpatterns = [
     # Campaign creation
     path('create/', views.create_campaign, name='create_campaign'),
     
-    # User's liked/wishlisted campaigns
-    path('wishlist/', views.get_user_liked_campaigns, name='wishlist'),
-    
     # Campaign details, update, delete
     path('<str:id>/', views.get_campaign, name='get_campaign'),
     path('<str:id>/donations/', get_campaign_donations, name='campaign_donations'),
     path('<str:id>/update/', views.update_campaign, name='update_campaign'),
     path('<str:id>/delete/', views.delete_campaign, name='delete_campaign'),
     path('<str:id>/stats/', views.get_campaign_stats, name='campaign_stats'),
-    path('<str:id>/like/', views.toggle_campaign_like, name='toggle_like'),
     
     # Milestones endpoints
     path('<str:campaign_id>/milestones/', milestone_views.milestones_list_create, name='milestones_list_create'),
