@@ -1,211 +1,277 @@
-# FundTracer 🎯
+# FundTracer
 
-A web-based application for **transparency of funds** for donors and **verification of campaigns/NGOs**. FundTracer ensures that charitable contributions reach their intended beneficiaries with complete transparency.
-
-## 📋 About the Project
-
-FundTracer is a platform that bridges the gap between donors and campaigns by providing:
-- **Real-time fund tracking** - Monitor where your donations go
-- **Campaign verification** - Verify legitimacy of campaigns and NGOs
-- **Transparent reporting** - Detailed financial reports from organizations
-- **Donor confidence** - Build trust through transparency
+FundTracer is a **transparent, milestone-based fundraising and donation tracking platform** designed to build trust between donors, individuals, and NGOs. It ensures that every donated rupee is **tracked, verified, and reported** using modern technologies like **AI chatbots, AWS verification services, and geotagged evidence**.
 
 ---
 
-## 🏗️ Tech Stack
+## 🚀 Key Vision
+
+> *"From donation to impact — every step verified, every milestone transparent."*
+
+FundTracer solves a major problem in traditional fundraising: **lack of transparency and accountability**. Donors often don’t know how or where their money is used. FundTracer fixes this with:
+
+* Milestone-based fund release
+* AI-assisted chatbot support
+* Document & image verification using AWS
+* Real-time campaign progress tracking
+
+---
+
+## 🧩 Core Features
+
+### 1. Campaign Management
+
+* Create fundraising campaigns under categories like:
+
+  * Disaster Relief
+  * Medical Aid
+  * Education
+  * Water Purification
+  * Stray & Animal Welfare
+* Campaign types:
+
+  * Individual
+  * NGO-based
+
+Each campaign includes:
+
+* Goal amount
+* Description & updates
+* Donor list & contribution history
+* Milestone-based progress tracking
+
+---
+
+### 2. 🤖 AI Chatbot (Gemini API Powered)
+
+FundTracer includes an **intelligent AI chatbot** integrated using **Google Gemini API**.
+
+#### Chatbot Capabilities:
+
+* Explains campaign details to donors
+* Answers FAQs about donations and milestones
+* Guides users through:
+
+  * Campaign creation
+  * Donation process
+  * Milestone verification status
+* Helps admins understand pending verifications
+
+#### How it works:
+
+1. User asks a question via chat interface
+2. Query is sent to backend
+3. Gemini API processes the intent
+4. Context-aware response is returned
+5. Chatbot dynamically adapts responses based on campaign data
+
+This improves **user trust, engagement, and clarity**.
+
+---
+
+## 🛡️ Milestone-Based Verification System (Core Innovation)
+
+FundTracer uses a **5-phase milestone system** to ensure funds are used responsibly.
+
+Each milestone must be **verified before moving to the next phase**.
+
+### 🔐 Verification Workflow Overview
+
+1. Campaign creator uploads:
+
+   * Bills / invoices (PDF or image)
+   * Geotagged images of goods or work done
+2. Files are stored securely in **AWS S3**
+3. **AWS Textract** analyzes documents
+4. Extracted data is validated against milestone requirements
+5. Admin verification approval
+6. Milestone marked as completed
+
+---
+
+## 📍 Evidence Storage & Verification
+
+### AWS Services Used
+
+* **AWS S3**
+
+  * Stores all uploaded documents
+  * Stores geotagged images
+  * Secure, immutable storage
+
+* **AWS Textract**
+
+  * Extracts structured data from bills & invoices
+  * Identifies:
+
+    * Supplier name
+    * Location of supply
+    * Items purchased
+    * Quantity
+    * Total price
+
+* **Geo-tag Validation**
+
+  * Ensures images are taken at the claimed location
+  * Prevents reuse or fake uploads
+
+---
+
+## 🧱 5-Phase Milestone Breakdown
+
+### 🟢 Phase 1: Assessment & Planning
+
+* Initial needs assessment
+* Beneficiary identification
+* Planning fund utilization
+
+**Verification Evidence:**
+
+* Survey reports
+* Planning documents
+* Initial location images
+
+---
+
+### 🟡 Phase 2: Implementation Begins
+
+* Purchase of goods or services
+* Start of on-ground execution
+
+**Verification Evidence:**
+
+* Purchase invoices
+* Supplier bills
+* Geotagged images of procured goods
+
+**AWS Textract extracts:**
+
+* Supplier name
+* Purchase location
+* Item list
+* Total amount
+
+---
+
+### 🟠 Phase 3: Mid-term Progress Review
+
+* Monitoring implementation progress
+* Partial distribution or usage confirmation
+
+**Verification Evidence:**
+
+* Progress reports
+* Distribution images
+* Mid-term expense documents
+
+---
+
+### 🔵 Phase 4: Continuation & Scaling
+
+* Scaling successful implementation
+* Extended reach or services
+
+**Verification Evidence:**
+
+* Additional invoices
+* Updated geotagged images
+* Resource utilization proof
+
+---
+
+### ✅ Phase 5: Final Completion & Impact Report
+
+* Final execution completion
+* Impact analysis
+* Transparency report for donors
+
+**Verification Evidence:**
+
+* Final report
+* Completion images
+* Expense summary
+
+Once Phase 5 is verified, the campaign is marked **Completed & Verified**.
+
+---
+
+## 👥 User Roles
+
+### Donor
+
+* View campaigns & milestones
+* Track fund usage
+* Receive verified updates
+* Trust-backed donations
+
+### Campaign Creator
+
+* Create & manage campaigns
+* Upload milestone evidence
+* Communicate with donors
+
+### Admin
+
+* Verify milestone evidence
+* Review AWS Textract results
+* Approve or reject milestones
+
+---
+
+## 🧠 Tech Stack
 
 ### Backend
-- **Framework**: Django 5.0+
-- **API**: Django REST Framework
-- **Database**: PostgreSQL
-- **Authentication**: JWT (JSON Web Tokens)
-- **Storage**: AWS S3 (via django-storages)
+
+* Django / Django REST Framework
+* PostgreSQL
 
 ### Frontend
-- **Framework**: Next.js 15+
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI
-- **State Management**: React Hooks
-- **API Client**: Axios
+
+* React / Next.js
+* Modern UI with milestone timelines
+
+### AI & Cloud
+
+* Google Gemini API (Chatbot)
+* AWS S3 (Storage)
+* AWS Textract (Document Analysis)
 
 ---
 
-## 🚀 Quick Start
+## 📊 Transparency Dashboard
 
-### Prerequisites
-- Python 3.10+
-- Node.js 18+
-- PostgreSQL 12+
-- Git
-
-### Backend Setup
-
-```bash
-# Navigate to backend directory
-cd backend
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Configure database (update settings.py with your PostgreSQL credentials)
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Run development server
-python manage.py runserver
-```
-
-Backend will run at: `http://127.0.0.1:8000`
-
-### Frontend Setup
-
-```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-```
-
-Frontend will run at: `http://localhost:3000`
+* Real-time campaign status
+* Milestone completion percentage
+* Donor contribution summary
+* Verified expense breakdown
 
 ---
 
-## 📁 Project Structure
+## 🌍 Impact
 
-```
-fundtracer/
-├── backend/
-│   ├── accounts/          # User authentication & profiles
-│   ├── campaigns/         # Campaign management
-│   ├── donations/         # Donation tracking
-│   ├── notifications/     # Notification system
-│   ├── core/              # Admin & utilities
-│   ├── backend/           # Django settings
-│   └── manage.py
-├── frontend/
-│   ├── app/               # Next.js pages
-│   ├── components/        # Reusable components
-│   ├── lib/               # Utility functions
-│   ├── public/            # Static assets
-│   └── package.json
-├── README.md
-├── .gitignore
-└── requirements.txt
-```
+FundTracer ensures:
+
+* Zero fake claims
+* Complete fund traceability
+* Higher donor confidence
+* Scalable & auditable fundraising
 
 ---
 
-## 🔑 Key Features
+## ✨ Future Enhancements
 
-- ✅ User authentication & profiles
-- ✅ Campaign creation & management
-- ✅ Real-time donation tracking
-- ✅ Admin verification system
-- ✅ Responsive UI (Mobile, Tablet, Desktop)
-- ✅ Search & filter campaigns
-- ✅ Donor dashboard & history
-- ✅ Campaign documentation
-- ✅ Live statistics
+* Blockchain-based immutable records
+* Automated fund release per milestone
+* NGO verification badges
+* Multilingual chatbot support
 
 ---
 
-## 🧪 Testing
+## 👨‍💻 Author
 
-### Backend Tests
-```bash
-cd backend
-python manage.py test
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm run test
-```
+**Team Rockett**
+B.Tech CSE (AI & ML)
 
 ---
 
-## 📝 API Documentation
-
-API endpoints will be documented at `/api/docs/` once the project is deployed.
-
-### Main Endpoints
-- `POST /api/auth/signup/` - User registration
-- `POST /api/auth/login/` - User login
-- `GET /api/campaigns/` - List campaigns
-- `POST /api/campaigns/` - Create campaign
-- `POST /api/donations/` - Create donation
-- `GET /api/donations/` - Donation history
-
----
-
-## 🔐 Environment Variables
-
-Create `.env` files in both backend and frontend directories.
-
-### Backend `.env`
-```
-SECRET_KEY=your-secret-key
-DEBUG=True
-DATABASE_NAME=fundtracer_dbs
-DATABASE_USER=postgres
-DATABASE_PASSWORD=your-password
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-```
-
-### Frontend `.env.local`
-```
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
-```
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Development Workflow
-1. Create a feature branch: `git checkout -b feature/your-feature`
-2. Make your changes
-3. Commit: `git commit -m "feat: description"`
-4. Push: `git push origin feature/your-feature`
-5. Create Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see LICENSE file for details.
-
----
-
-## 👨‍💻 Authors
-
-- **FundTracer Team** - Hackathon 2026
-
----
-
-## 📞 Support
-
-For issues and feature requests, please create an issue on GitHub.
-
----
-
-**Built with ❤️ for transparency in charitable giving.**
+> *FundTracer — because trust matters more than promises.*
