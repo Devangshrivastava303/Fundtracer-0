@@ -69,6 +69,8 @@ interface Campaign {
   donation_count: number;
   goal_reached: boolean;
   created_at: string;
+  is_liked?: boolean;
+  likes_count?: number;
 }
 
 interface Document {
@@ -126,6 +128,9 @@ const CampaignDetailPage = () => {
   const [isCreator, setIsCreator] = useState(false);
   const [milestonesRefreshTrigger, setMilestonesRefreshTrigger] = useState(0);
   const [isDonor, setIsDonor] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [isTogglingLike, setIsTogglingLike] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -144,10 +149,14 @@ const CampaignDetailPage = () => {
             created_by_id: campaignData.created_by.id,
             created_by_name: campaignData.created_by.first_name,
             documents: campaignData.documents,
-            documents_verified: campaignData.documents_verified
+            documents_verified: campaignData.documents_verified,
+            is_liked: campaignData.is_liked,
+            likes_count: campaignData.likes_count
           });
           
           setCampaign(campaignData);
+          setIsLiked(campaignData.is_liked || false);
+          setLikesCount(campaignData.likes_count || 0);
           
           // Check if current user is the creator
           const userStr = localStorage.getItem('user');
@@ -223,6 +232,44 @@ const CampaignDetailPage = () => {
       setDonationsLoading(false);
     }
   }
+
+  const toggleLike = async () => {
+    // Check if user is authenticated
+    const userStr = localStorage.getItem('user');
+    const token = localStorage.getItem('access_token');
+    
+    if (!userStr || !token) {
+      alert('Please login to add campaigns to your wishlist');
+      router.push('/auth');
+      return;
+    }
+
+    if (!campaign) return;
+
+    setIsTogglingLike(true);
+    try {
+      const response = await axios.post(
+        `http://127.0.0.1:8000/api/campaigns/${campaign.id}/like/`,
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      setIsLiked(response.data.is_liked);
+      setLikesCount(response.data.likes_count);
+      
+      console.log('Like toggled successfully:', response.data);
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      alert('Failed to update wishlist');
+    } finally {
+      setIsTogglingLike(false);
+    }
+  };
 
   if (loading) {
     return <LoadingSpinner fullScreen message="Loading campaign details..." />;
@@ -643,9 +690,26 @@ const CampaignDetailPage = () => {
                   {isCreator ? "Creators cannot donate" : "Donate Now"}
                 </button>
 
-                <button className="w-full border-2 border-blue-600 text-blue-600 font-semibold py-3 rounded-xl hover:bg-blue-50 transition">
-                  Share Campaign
-                </button>
+                {/* Wishlist and Share Buttons */}
+                <div className="flex gap-3">
+                  <button 
+                    onClick={toggleLike}
+                    disabled={isTogglingLike}
+                    className="flex-1 border-2 border-red-300 text-red-600 font-semibold py-3 rounded-xl hover:bg-red-50 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                    title={isLiked ? "Remove from wishlist" : "Add to wishlist"}
+                  >
+                    <Heart 
+                      size={20} 
+                      fill={isLiked ? "currentColor" : "none"}
+                      className={isLiked ? "text-red-600" : "text-red-400"}
+                    />
+                    <span className="text-sm">{likesCount}</span>
+                  </button>
+                  <button className="flex-1 border-2 border-blue-600 text-blue-600 font-semibold py-3 rounded-xl hover:bg-blue-50 transition flex items-center justify-center gap-2">
+                    <Share2 size={20} />
+                    <span className="text-sm">Share</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -92,3 +92,17 @@ class Milestone(models.Model):
         if not self.is_completed and self.due_date < timezone.now():
             return True
         return False
+
+class CampaignLike(models.Model):
+    """Track user likes/wishlist for campaigns"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='liked_campaigns')
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'campaign')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} liked {self.campaign.title}"

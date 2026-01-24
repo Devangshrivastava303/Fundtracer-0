@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
-from campaigns.models import Campaign
+from campaigns.models import Campaign, CampaignLike
 from campaigns.serializers import (
     CampaignListSerializer, CampaignDetailSerializer,
     CampaignCreateUpdateSerializer, CampaignCategorySerializer
@@ -238,3 +238,66 @@ def list_categories(request):
         'message': 'Categories retrieved successfully',
         'data': serializer.data
     }, status=status.HTTP_200_OK)
+
+
+# -------------------- TOGGLE CAMPAIGN LIKE/UNLIKE --------------------
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_campaign_like(request, id):
+    """
+    Toggle campaign like status (add to wishlist or unlike)
+    POST /api/campaigns/<id>/like/
+    """
+    try:
+        campaign = Campaign.objects.get(id=id)
+    except Campaign.DoesNotExist:
+        return Response({
+            'error': 'Campaign not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    like_obj, created = CampaignLike.objects.get_or_create(
+        user=request.user,
+        campaign=campaign
+    )
+    
+    if not created:
+        # Unlike the campaign
+        like_obj.delete()
+        return Response({
+            'message': 'Campaign removed from wishlist',
+            'is_liked': False,
+            'likes_count': campaign.likes.count()
+        }, status=status.HTTP_200_OK)
+    else:
+        # Like the campaign
+        return Response({
+            'message': 'Campaign added to wishlist',
+            'is_liked': True,
+            'likes_count': campaign.likes.count()
+        }, status=status.HTTP_200_OK)
+
+
+# -------------------- GET USER'S LIKED CAMPAIGNS --------------------
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_liked_campaigns(request):
+    """
+    Get all campaigns liked/wishlisted by the current user
+    GET /api/campaigns/wishlist/
+    """
+    liked_campaigns = Campaign.objects.filter(
+        likes__user=request.user
+    ).distinct()
+    
+    # Pagination
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    paginated_queryset = paginator.paginate_queryset(liked_campaigns, request)
+    
+    serializer = CampaignListSerializer(
+        paginated_queryset,
+        many=True,
+        context={'request': request}
+    )
+    
+    return paginator.get_paginated_response(serializer.data)

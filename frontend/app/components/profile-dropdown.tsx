@@ -100,6 +100,15 @@ export function ProfileDropdown({ user, onLogout }: ProfileDropdownProps) {
               <span>My Donations</span>
             </button>
 
+            {/* Wishlist */}
+            <button
+              onClick={() => handleNavigation("/wishlist")}
+              className="w-full px-4 py-2 text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center gap-3 transition-colors"
+            >
+              <Heart className="w-4 h-4 text-red-500" fill="currentColor" />
+              <span>My Wishlist</span>
+            </button>
+
             {/* My Campaigns */}
             <button
               onClick={() => handleNavigation("/my-campaigns")}

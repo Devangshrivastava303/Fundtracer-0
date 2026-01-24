@@ -1,270 +1,154 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
+import { ArrowRight, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 const slides = [
   {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1200&h=800&fit=crop",
-    category: "Education",
-    categoryColor: "bg-blue-500",
-    headline: "See Exactly Where Every Rupee Goes",
-    subtitle: "Fund education with complete transparency. Track every milestone and see verified proof of impact.",
-    campaign: {
-      title: "Books for Rural Schools",
-      ngo: "Education First Foundation",
-      raised: 245000,
-      goal: 500000,
-      verified: true,
-    },
+    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070",
+    title: "Transparent Giving,",
+    subtitle: "Real-time Impact.",
+    description: "Track your donation from your wallet to the hands of those in need with our AI-verified Tracer Protocol.",
+    cta: "Start Donating",
+    color: "from-blue-600/40"
   },
   {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop",
-    category: "Healthcare",
-    categoryColor: "bg-red-500",
-    headline: "Healthcare That's Accountable",
-    subtitle: "Support life-saving treatments with milestone-based fund releases and AI-verified proofs.",
-    campaign: {
-      title: "Heart Surgery for Children",
-      ngo: "Care India Trust",
-      raised: 780000,
-      goal: 1000000,
-      verified: true,
-    },
+    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80&w=2070",
+    title: "Educate the Future,",
+    subtitle: "Verify the Change.",
+    description: "Join 85+ verified NGOs providing education to underprivileged children across India.",
+    cta: "View Campaigns",
+    color: "from-emerald-600/40"
   },
   {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&h=800&fit=crop",
-    category: "Child Welfare",
-    categoryColor: "bg-purple-500",
-    headline: "Transform a Child's Future",
-    subtitle: "Every donation creates real impact. See geo-tagged photos and verified invoices.",
-    campaign: {
-      title: "Orphanage Nutrition Program",
-      ngo: "Happy Kids NGO",
-      raised: 156000,
-      goal: 300000,
-      verified: true,
-    },
+    image: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb8?q=80&w=2070",
+    title: "Disaster Relief,",
+    subtitle: "Immediate Action.",
+    description: "When crisis hits, every second counts. Our protocol ensures emergency funds reach ground zero instantly.",
+    cta: "Help in Crisis",
+    color: "from-red-600/40"
   },
   {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=1200&h=800&fit=crop",
-    category: "Animal Welfare",
-    categoryColor: "bg-amber-500",
-    headline: "Protect Lives That Can't Speak",
-    subtitle: "Fund animal rescues with real-time updates on shelter conditions and care provided.",
-    campaign: {
-      title: "Stray Animal Shelter",
-      ngo: "Paws & Claws India",
-      raised: 89000,
-      goal: 150000,
-      verified: true,
-    },
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070",
+    title: "Protecting Paws,",
+    subtitle: "Vetted Mercy.",
+    description: "Support animal shelters that provide 100% transparent medical and food reports for every rescue.",
+    cta: "Save a Life",
+    color: "from-orange-600/40"
   },
   {
-    id: 5,
-    image: "https://images.unsplash.com/photo-1581579438747-1dc8d17bbce4?w=1200&h=800&fit=crop",
-    category: "Elder Care",
-    categoryColor: "bg-teal-500",
-    headline: "Dignity in Golden Years",
-    subtitle: "Support elderly care homes with transparent tracking of meals, medicine, and daily care.",
-    campaign: {
-      title: "Senior Citizens Home",
-      ngo: "Silver Care Foundation",
-      raised: 320000,
-      goal: 400000,
-      verified: true,
-    },
-  },
+    image: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?q=80&w=2070",
+    title: "Medical Support,",
+    subtitle: "Pure Transparency.",
+    description: "Funding critical surgeries with digital proof of billing and hospital clearance records.",
+    cta: "Donate for Health",
+    color: "from-rose-600/40"
+  }
 ]
 
 export function HeroSlider() {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
+  const [current, setCurrent] = useState(0)
 
-  const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length)
-  }, [])
-
-  const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
-  }, [])
-
+  // Auto-slide every 6 seconds
   useEffect(() => {
-    if (isPaused) return
-    const interval = setInterval(nextSlide, 5000)
-    return () => clearInterval(interval)
-  }, [isPaused, nextSlide])
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev === slides.length - 1 ? 0 : prev + 1))
+    }, 6000)
+    return () => clearInterval(timer)
+  }, [])
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+  const nextSlide = () => setCurrent(current === slides.length - 1 ? 0 : current + 1)
+  const prevSlide = () => setCurrent(current === 0 ? slides.length - 1 : current - 1)
 
   return (
-    <section
-      className="relative h-[90vh] min-h-[600px] w-full overflow-hidden pt-16"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      {/* Slides */}
+    <section className="relative h-[95vh] min-h-[750px] w-full overflow-hidden bg-slate-950">
       {slides.map((slide, index) => (
         <div
-          key={slide.id}
-          className={cn(
-            "absolute inset-0 transition-all duration-1000 ease-in-out",
-            index === currentSlide ? "opacity-100 scale-100" : "opacity-0 scale-105",
-          )}
+          key={index}
+          className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+            index === current ? "opacity-100 z-10" : "opacity-0 z-0"
+          }`}
         >
-          {/* Background Image */}
-          <div
-            className={cn("absolute inset-0 bg-cover bg-center", "backgroundImage")}
-            style={{ "--bg-image": `url(${slide.image})` } as React.CSSProperties}
+          {/* Background Image with Ken Burns Effect */}
+          <div 
+            className={`absolute inset-0 bg-cover bg-center transition-transform duration-[8000ms] ease-linear ${
+                index === current ? "scale-110" : "scale-100"
+            }`}
+            style={{ backgroundImage: `url(${slide.image})` }}
           />
-          {/* Overlay Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
-
-          {/* Content */}
-          <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-            <div className="max-w-2xl">
-              {/* Category Badge */}
-              <div
-                className={cn(
-                  "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium text-primary-foreground mb-6",
-                  slide.categoryColor,
-                  index === currentSlide && "animate-slide-up category-badge",
-                )}
-              >
-                {slide.category}
+          
+          {/* Dynamic Gradient Overlay based on slide color */}
+          <div className={`absolute inset-0 bg-gradient-to-r ${slide.color} via-slate-900/80 to-slate-950`} />
+          
+          {/* Content Area */}
+          <div className="relative h-full max-w-7xl mx-auto px-6 flex flex-col justify-center">
+            <div className={`max-w-4xl transition-all duration-1000 delay-300 ${
+              index === current ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
+            }`}>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 w-fit px-4 py-1.5 rounded-full mb-8">
+                <ShieldCheck className="text-blue-400" size={16} />
+                <span className="text-white/90 text-[10px] font-black uppercase tracking-[0.2em]">Tracer Protocol Active</span>
               </div>
-
-              {/* Headline */}
-              <h1
-                className={cn(
-                  "text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4 leading-tight text-balance",
-                  index === currentSlide && "animate-slide-up",
-                )}
-                style={{ animationDelay: "0.2s" }}
-              >
-                {slide.headline}
+              
+              <h1 className="text-6xl md:text-[100px] font-black text-white tracking-tighter leading-[0.85] mb-8">
+                {slide.title} <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40 italic font-serif">
+                  {slide.subtitle}
+                </span>
               </h1>
-
-              {/* Subtitle */}
-              <p
-                className={cn(
-                  "text-lg sm:text-xl text-primary-foreground/80 mb-8 max-w-xl",
-                  index === currentSlide && "animate-slide-up",
-                )}
-                style={{ animationDelay: "0.3s" }}
-              >
-                {slide.subtitle}
+              
+              <p className="text-slate-300 text-lg md:text-2xl max-w-2xl mb-12 leading-relaxed font-medium">
+                {slide.description}
               </p>
-
-              {/* CTAs */}
-              <div
-                className={cn("flex flex-wrap gap-4", index === currentSlide && "animate-slide-up")}
-                style={{ animationDelay: "0.4s" }}
-              >
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                  Explore Campaigns
+              
+              <div className="flex flex-wrap gap-5">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-500 text-white rounded-2xl px-12 py-9 text-xl font-black shadow-[0_20px_50px_rgba(37,99,235,0.3)] transition-all hover:-translate-y-1">
+                  {slide.cta} <ArrowRight className="ml-2" />
                 </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
-                >
-                  How It Works
+                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-md border-white/20 text-white hover:bg-white/20 hover:border-white/40 transition-all rounded-2xl px-12 py-9 text-xl font-bold">
+                  Learn More
                 </Button>
-              </div>
-            </div>
-
-            {/* Campaign Card - Hidden on mobile */}
-            <div
-              className={cn(
-                "hidden lg:block absolute right-8 bottom-24 w-80",
-                index === currentSlide && "animate-slide-up",
-              )}
-              style={{ animationDelay: "0.5s" }}
-            >
-              <div className="bg-card/90 backdrop-blur-md rounded-2xl p-5 shadow-2xl border border-border/50">
-                <div className="flex items-center gap-2 mb-3">
-                  <span
-                    className={cn(
-                      "px-2 py-0.5 rounded-full text-xs font-medium text-primary-foreground",
-                      slide.categoryColor,
-                    )}
-                  >
-                    {slide.category}
-                  </span>
-                  {slide.campaign.verified && (
-                    <span className="flex items-center gap-1 text-xs text-accent">
-                      <BadgeCheck className="w-3.5 h-3.5" />
-                      Verified
-                    </span>
-                  )}
-                </div>
-                <h3 className="font-semibold text-card-foreground mb-1">{slide.campaign.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">{slide.campaign.ngo}</p>
-
-                {/* Progress Bar */}
-                <div className="mb-2">
-                  <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className={cn("h-full bg-primary rounded-full", index === currentSlide && "animate-progress")}
-                      style={{ width: `${(slide.campaign.raised / slide.campaign.goal) * 100}%` }}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-card-foreground">{formatCurrency(slide.campaign.raised)}</span>
-                  <span className="text-muted-foreground">of {formatCurrency(slide.campaign.goal)}</span>
-                </div>
               </div>
             </div>
           </div>
         </div>
       ))}
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-background/20 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-foreground hover:bg-background/30 transition-colors"
-        aria-label="Previous slide"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-      <button
-        onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-background/20 backdrop-blur-sm rounded-full flex items-center justify-center text-primary-foreground hover:bg-background/30 transition-colors"
-        aria-label="Next slide"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
-
-      {/* Pagination Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentSlide(index)}
-            className={cn(
-              "w-2.5 h-2.5 rounded-full transition-all duration-300",
-              index === currentSlide
-                ? "bg-primary-foreground w-8"
-                : "bg-primary-foreground/40 hover:bg-primary-foreground/60",
-            )}
-            aria-label={`Go to slide ${index + 1}`}
-          />
-        ))}
+      {/* Navigation: Bottom Bar */}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 w-full max-w-7xl px-6 flex items-center justify-between z-30">
+        <div className="flex gap-4">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className="group py-4"
+            >
+              <div className={`h-1 transition-all duration-500 rounded-full ${
+                i === current ? "w-16 bg-blue-500" : "w-8 bg-white/20 group-hover:bg-white/40"
+              }`} />
+            </button>
+          ))}
+        </div>
+        
+        <div className="flex gap-4">
+          <button 
+            onClick={prevSlide}
+            className="w-14 h-14 rounded-2xl border border-white/10 flex items-center justify-center text-white hover:bg-white/20 backdrop-blur-md transition-all group"
+          >
+            <ChevronLeft size={28} className="group-hover:-translate-x-1 transition-transform" />
+          </button>
+          <button 
+            onClick={nextSlide}
+            className="w-14 h-14 rounded-2xl border border-white/10 flex items-center justify-center text-white hover:bg-white/20 backdrop-blur-md transition-all group"
+          >
+            <ChevronRight size={28} className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        </div>
       </div>
+
+      {/* Side Vignette for depth */}
+      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-slate-950 to-transparent z-20 pointer-events-none" />
     </section>
   )
 }
