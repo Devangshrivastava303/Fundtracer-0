@@ -1,22 +1,19 @@
 // e:\Main_pro\fundtracer\frontend\lib\firebase.ts
-// Firebase configuration disabled - using local storage only
-// To enable Firebase authentication, uncomment the code below and add your Firebase credentials
-
-/*
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project",
-  storageBucket: "your-project.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
+  apiKey: "AIzaSyCW3WtXrVDoi-_U6JcE0968jZgVRPwQRC8",
+  authDomain: "fundtracer-eca34.firebaseapp.com",
+  projectId: "fundtracer-eca34",
+  storageBucket: "fundtracer-eca34.firebasestorage.app",
+  messagingSenderId: "722879610325",
+  appId: "1:722879610325:web:27ad8748b369d26e4b915c",
+  measurementId: "G-6GHMKQ0P1X"
 }
 
+// Initialize Firebase (prevent multiple initializations)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
@@ -30,9 +27,3 @@ if (typeof window !== "undefined") {
 }
 
 export { app, auth, analytics };
-*/
-
-// Placeholder exports for local development
-export const app = null;
-export const auth = null;
-export const analytics = null;

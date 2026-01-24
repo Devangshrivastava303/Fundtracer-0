@@ -69,6 +69,7 @@ export default function DonatePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [showTipDropdown, setShowTipDropdown] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
 
   // Check if user is logged in
   useEffect(() => {
@@ -87,6 +88,20 @@ export default function DonatePage() {
     }
     setAuthLoading(false);
   }, []);
+
+  // Determine if current user is the campaign creator
+  useEffect(() => {
+    if (user && campaign && (campaign as any).created_by) {
+      try {
+        const creatorId = (campaign as any).created_by.id ?? (campaign as any).created_by;
+        setIsCreator(Number(user.id) === Number(creatorId));
+      } catch (e) {
+        setIsCreator(false);
+      }
+    } else {
+      setIsCreator(false);
+    }
+  }, [user, campaign]);
 
   // Fetch campaign details
   useEffect(() => {
@@ -154,8 +169,17 @@ export default function DonatePage() {
         localStorage.setItem("access_token", signupRes.data.access_token);
         localStorage.setItem("refresh_token", signupRes.data.refresh_token);
 
+        // Prevent creators from donating to their own campaign
+        const newUserId = signupRes.data.user.id;
+        const creatorId = (campaign as any).created_by?.id ?? (campaign as any).created_by;
+        if (creatorId && Number(newUserId) === Number(creatorId)) {
+          setError("Creators cannot donate to their own campaign.");
+          setIsLoading(false);
+          return;
+        }
+
         // Then process donation
-        await processDonation(signupRes.data.user.id);
+        await processDonation(newUserId);
       }
     } catch (err: any) {
       setError(
@@ -172,6 +196,13 @@ export default function DonatePage() {
   const handleDonate = async () => {
     if (finalAmount <= 0) {
       setError("Please select a valid amount");
+      return;
+    }
+
+    // Prevent creators from donating to their own campaign
+    const creatorId = (campaign as any).created_by?.id ?? (campaign as any).created_by;
+    if (creatorId && user && Number(user.id) === Number(creatorId)) {
+      setError("Creators cannot donate to their own campaign.");
       return;
     }
 
@@ -533,7 +564,7 @@ export default function DonatePage() {
             className="w-full h-14 text-lg font-semibold"
           >
             {isLoading && <Loader2 className="h-5 w-5 animate-spin mr-2" />}
-            {isLoggedIn ? "Proceed to Payment" : "Create Account & Donate"} - ₹
+            {isCreator ? "Creators cannot donate" : isLoggedIn ? "Proceed to Payment" : "Create Account & Donate"} - ₹
             {finalAmount}
           </Button>
         </div>

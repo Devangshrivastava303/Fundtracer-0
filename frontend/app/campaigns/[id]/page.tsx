@@ -112,12 +112,17 @@ const CampaignDetailPage = () => {
   const router = useRouter();
   const params = useParams();
   const id = params?.id;
+  
+  // Check if expandDescription param is in URL
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const shouldExpandDescription = searchParams?.get('expandDescription') === 'true';
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
   const [recentDonations, setRecentDonations] = useState<RecentDonation[]>([]);
   const [donationsLoading, setDonationsLoading] = useState(false);
+  const [showDescriptionExpanded, setShowDescriptionExpanded] = useState(shouldExpandDescription || false);
   const [isCreator, setIsCreator] = useState(false);
   const [milestonesRefreshTrigger, setMilestonesRefreshTrigger] = useState(0);
   const [isDonor, setIsDonor] = useState(false);
@@ -306,6 +311,14 @@ const CampaignDetailPage = () => {
                         <span>✓</span> Verified
                       </span>
                     )}
+                    <span className={`inline-flex items-center gap-1 px-3 py-1 text-sm font-semibold rounded-full ${
+                      campaign?.is_active 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      <span>{campaign?.is_active ? '●' : '●'}</span>
+                      {campaign?.is_active ? 'Active' : 'Inactive'}
+                    </span>
                   </div>
                   <h1 className="text-4xl font-bold text-gray-900 mb-3 leading-tight">
                     {campaign?.title || 'Untitled Campaign'}
@@ -344,24 +357,42 @@ const CampaignDetailPage = () => {
             </div>
 
             {/* About Section */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Target className="w-6 h-6 text-blue-600" />
-                To, Verify NGO Details & Information Yourself Visit:
-              </h2>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                <a href="https://mplads.gov.in/ngo_darpan/GetNgoDetails.aspx" className="text-blue-600 hover:underline">https://mplads.gov.in/ngo_darpan/GetNgoDetails.aspx</a>
-              </p>
-            </div>
-                
+            {!isCreator && (
+              <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <Target className="w-6 h-6 text-blue-600" />
+                  To, Verify NGO Details & Information Yourself Visit:
+                </h2>
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  <a href="https://mplads.gov.in/ngo_darpan/GetNgoDetails.aspx" className="text-blue-600 hover:underline">https://mplads.gov.in/ngo_darpan/GetNgoDetails.aspx</a>
+                </p>
+              </div>
+            )}
             <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Target className="w-6 h-6 text-blue-600" />
                 About This Campaign
               </h2>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                {campaign?.description || 'No description available'}
-              </p>
+              {showDescriptionExpanded ? (
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  {campaign?.description || 'No description available'}
+                </p>
+              ) : (
+                <div 
+                  className="cursor-pointer group"
+                  onMouseEnter={() => setShowDescriptionExpanded(true)}
+                  onMouseLeave={() => setShowDescriptionExpanded(false)}
+                >
+                  <div className="overflow-hidden transition-all duration-500">
+                    <p className="text-gray-700 text-lg leading-relaxed group-hover:text-blue-600 transition-colors line-clamp-4">
+                      {campaign?.description || 'No description available'}
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3 group-hover:text-blue-600 transition-colors">
+                    Hover to read more...
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Campaign Documents Section */}
@@ -457,30 +488,6 @@ const CampaignDetailPage = () => {
                 isDonor={isDonor}
               />
             )}
-
-            {/* Campaign Details Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-blue-100 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">Campaign Status</h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 mb-2">
-                  {campaign?.is_active ? (
-                    <span className="text-green-600">Active</span>
-                  ) : (
-                    <span className="text-red-600">Inactive</span>
-                  )}
-                </p>
-                <p className="text-sm text-gray-600">
-                  {campaign?.is_active 
-                    ? 'This campaign is currently accepting donations' 
-                    : 'This campaign has ended'}
-                </p>
-              </div>
-            </div>
 
             {/* Contact Details Card */}
             <div className="bg-white rounded-2xl shadow-lg p-6 mt-6">
@@ -622,10 +629,18 @@ const CampaignDetailPage = () => {
 
                 {/* CTA Button */}
                 <button 
-                  onClick={() => setIsDonationModalOpen(true)}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 rounded-xl hover:shadow-lg transition transform hover:scale-105 duration-200 mb-3"
+                  onClick={() => {
+                    if (isCreator) {
+                      alert("You own this campaign — you cannot donate to it.");
+                      return;
+                    }
+                    setIsDonationModalOpen(true);
+                  }}
+                  className={isCreator ? "w-full bg-gray-200 text-gray-600 font-bold py-4 rounded-xl mb-3 cursor-not-allowed" : "w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold py-4 rounded-xl hover:shadow-lg transition transform hover:scale-105 duration-200 mb-3"}
+                  disabled={isCreator}
+                  title={isCreator ? "You own this campaign — you cannot donate to it." : "Donate to this campaign"}
                 >
-                  Donate Now
+                  {isCreator ? "Creators cannot donate" : "Donate Now"}
                 </button>
 
                 <button className="w-full border-2 border-blue-600 text-blue-600 font-semibold py-3 rounded-xl hover:bg-blue-50 transition">

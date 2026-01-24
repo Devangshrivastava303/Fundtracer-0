@@ -39,7 +39,6 @@ const defaultCategories = [
 const sortOptions = [
   { id: "trending", name: "Trending" },
   { id: "most-funded", name: "Most Funded" },
-  { id: "ending-soon", name: "Ending Soon" },
   { id: "newly-added", name: "Newly Added" },
 ];
 
@@ -92,6 +91,175 @@ function CampaignCardSkeleton({ index }: { index: number }) {
   );
 }
 
+interface CampaignCardProps {
+  campaign: Campaign;
+  index: number;
+  currentUserId: number | null;
+}
+
+function CampaignCardInteractive({ campaign: c, index: idx, currentUserId }: CampaignCardProps) {
+  const [isHovering, setIsHovering] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 100000) return `₹${(amount / 100000).toFixed(1)}L`;
+    return `₹${(amount / 1000).toFixed(0)}K`;
+  };
+
+  return (
+    <div
+      key={c.id}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className={`bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm transition-all duration-500 animate-fade-in-up relative ${
+        isHovering ? 'shadow-2xl scale-110 z-50 -translate-y-4' : ''
+      }`}
+      style={{ animationDelay: `${idx * 50}ms` }}
+    >
+      {/* Image Container - Slides up and disappears on hover */}
+      {c.image ? (
+        <div className={`relative overflow-hidden bg-gray-100 transition-all duration-500 ${isHovering ? 'h-0 -translate-y-full' : 'h-48'}`}>
+          <img
+            src={c.image}
+            alt={c.title}
+            className={`w-full h-full object-cover transition-transform duration-700 ${isHovering ? 'scale-125' : 'scale-100'}`}
+          />
+          {c.fundtracer_verified && (
+            <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg animate-pulse">
+              <BadgeCheck className="h-3 w-3" />
+              Verified
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className={`relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center transition-all duration-500 ${isHovering ? 'h-0 -translate-y-full' : 'h-48'}`}>
+          <div className="text-center">
+            <div className="text-gray-400 text-4xl mb-2">📸</div>
+            <p className="text-gray-500 text-sm font-medium">No image available</p>
+          </div>
+          {c.fundtracer_verified && (
+            <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg animate-pulse">
+              <BadgeCheck className="h-3 w-3" />
+              Verified
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Content Container */}
+      <div className={`transition-all duration-500 ${isHovering ? 'bg-gradient-to-br from-blue-50 to-white' : ''} ${isHovering ? 'p-4' : 'p-6'}`}>
+        <div className={`inline-block bg-blue-50 text-blue-700 px-3 rounded-full text-xs font-semibold transition-all duration-300 ${isHovering ? 'py-0.5' : 'py-1'}`}>
+          {c.category.name}
+        </div>
+
+        <h3 className={`font-bold text-gray-900 transition-all duration-300 line-clamp-2 mt-2 ${isHovering ? 'text-lg text-blue-600' : 'text-lg'}`}>
+          {c.title}
+        </h3>
+
+        {/* Description - Slides down simultaneously with image going up */}
+        <div className={`mt-3 space-y-2 overflow-hidden transition-all duration-500 ${
+          isHovering 
+            ? 'max-h-56 opacity-100 translate-y-0' 
+            : 'max-h-0 opacity-0 -translate-y-full'
+        }`}>
+          <p className="text-xs text-gray-700 leading-relaxed">
+            {c.description}
+          </p>
+          <button
+            onClick={() => window.location.href = `/campaigns/${c.id}?expandDescription=true`}
+            className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors"
+          >
+            Read More →
+          </button>
+        </div>
+
+        <div className={`space-y-2 transition-all duration-500 ${isHovering ? 'pt-2' : 'pt-4'} ${isHovering ? 'translate-y-2' : 'translate-y-0'}`}>
+          <div className="relative h-2 bg-gray-100 rounded-full w-full overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000"
+              style={{ width: `${Math.min(c.progress_percentage, 100)}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className={`font-semibold transition-all duration-300 ${isHovering ? 'text-sm text-blue-600' : 'text-base text-gray-900'}`}>
+              {formatCurrency(c.raised_amount)} raised
+            </span>
+            <span className={`transition-all duration-300 ${isHovering ? 'text-blue-600 font-semibold text-sm' : 'text-gray-600'}`}>
+              {c.progress_percentage}%
+            </span>
+          </div>
+        </div>
+
+        {isHovering && (
+          <div className="flex items-center gap-3 text-xs text-gray-600 mt-2 animate-fade-in transform transition-transform duration-500 translate-y-1">
+            <div className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              <span>{c.donation_count} donors</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <TrendingUp className="h-3.5 w-3.5" />
+              <span>Goal: {formatCurrency(c.goal_amount)}</span>
+            </div>
+          </div>
+        )}
+
+        {!isHovering && (
+          <div className="flex items-center gap-3 text-xs text-gray-500 mt-3 transform transition-transform duration-500 translate-y-0">
+            <div className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              <span>{c.donation_count} donors</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <TrendingUp className="h-3.5 w-3.5" />
+              <span>Goal: {formatCurrency(c.goal_amount)}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Buttons - Smaller when hovering to save space */}
+        <div className={`flex gap-2 transition-all transform duration-500 ${isHovering ? 'gap-2 mt-3' : 'gap-2 mt-4'} ${isHovering ? 'translate-y-2' : 'translate-y-0'}`}>
+          <button
+            onClick={() => window.location.href = `/campaigns/${c.id}`}
+            className={`flex-1 border-2 border-blue-600 text-blue-600 rounded-xl hover:bg-blue-50 transition-all font-semibold hover:scale-105 duration-200 ${
+              isHovering ? 'py-2 text-xs' : 'py-2.5 text-sm'
+            }`}
+          >
+            View Details
+          </button>
+          <button
+            onClick={() => {
+              if (currentUserId !== null && c.created_by && c.created_by.id === currentUserId) {
+                alert('You own this campaign — you cannot donate to it.');
+                return;
+              }
+              window.location.href = `/campaigns/${c.id}/donate`;
+            }}
+            className={`flex-1 rounded-xl transition-all font-semibold hover:scale-105 duration-200 ${
+              currentUserId !== null && c.created_by && c.created_by.id === currentUserId
+                ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:shadow-xl'
+            } ${isHovering ? 'py-2 text-xs' : 'py-2.5 text-sm'}`}
+            disabled={currentUserId !== null && c.created_by && c.created_by.id === currentUserId}
+            title={currentUserId !== null && c.created_by && c.created_by.id === currentUserId ? 'You own this campaign — you cannot donate to it.' : 'Donate to this campaign'}
+          >
+            {currentUserId !== null && c.created_by && c.created_by.id === currentUserId ? 'Creators cannot donate' : 'Donate Now'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CampaignsBrowser() {
   const [isClient, setIsClient] = useState(false);
   const [categories, setCategories] = useState(defaultCategories);
@@ -107,6 +275,19 @@ export default function CampaignsBrowser() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const loaderRef = useRef<HTMLDivElement>(null);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr as string);
+        if (user && user.id) setCurrentUserId(user.id);
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, []);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -178,17 +359,15 @@ export default function CampaignsBrowser() {
 
   const sortedCampaigns = useMemo(() => {
     return [...allCampaigns].sort((a, b) => {
-      switch (selectedSort) {
-        case "most-funded":
-          return b.raised_amount - a.raised_amount;
-        case "ending-soon":
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case "newly-added":
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-        case "trending":
-        default:
-          return b.donation_count - a.donation_count;
-      }
+        switch (selectedSort) {
+          case "most-funded":
+            return b.raised_amount - a.raised_amount;
+          case "newly-added":
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          case "trending":
+          default:
+            return b.donation_count - a.donation_count;
+        }
     });
   }, [allCampaigns, selectedSort]);
 
@@ -370,7 +549,7 @@ export default function CampaignsBrowser() {
           <div className="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-br from-teal-400/15 to-blue-500/12 rounded-full blur-3xl animate-pulse-glow delay-2000" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-white space-y-6">
               <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium animate-fade-in">
@@ -378,33 +557,33 @@ export default function CampaignsBrowser() {
                 <span>Trusted by 10,000+ donors</span>
               </div>
               
-              <h1 className="text-5xl lg:text-6xl font-bold leading-tight animate-fade-in-up">
+              <h1 className="text-6xl lg:text-7xl font-bold leading-tight animate-fade-in-up">
                 Make a Real
                 <br />
                 <span className="text-white/90">Difference Today</span>
               </h1>
               
-              <p className="text-xl text-white/90 leading-relaxed animate-fade-in-up delay-200">
+              <p className="text-2xl text-white/90 leading-relaxed animate-fade-in-up delay-200">
                 Discover transparent, verified campaigns you can trust. Every donation creates lasting impact.
               </p>
 
-              <div className="grid grid-cols-3 gap-6 pt-4 animate-fade-in-up delay-300">
+              <div className="grid grid-cols-3 gap-8 pt-6 animate-fade-in-up delay-300">
                 <div className="space-y-1">
-                  <div className="text-3xl font-bold">500+</div>
+                  <div className="text-4xl font-bold">500+</div>
                   <div className="text-sm text-white/80">Active Campaigns</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-3xl font-bold">₹50L+</div>
+                  <div className="text-4xl font-bold">₹50L+</div>
                   <div className="text-sm text-white/80">Funds Raised</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-3xl font-bold">10K+</div>
+                  <div className="text-4xl font-bold">10K+</div>
                   <div className="text-sm text-white/80">Happy Donors</div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 self-center">
               {[
                 { icon: Shield, title: "100% Verified", desc: "Every campaign is thoroughly verified by our team", delay: 0 },
                 { icon: TrendingUp, title: "Track Impact", desc: "Real-time updates on how your donation helps", delay: 100 },
@@ -413,14 +592,14 @@ export default function CampaignsBrowser() {
               ].map((item, idx) => (
                 <div
                   key={idx}
-                  className={`group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 space-y-3 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl animate-fade-in-up ${idx === 1 ? 'mt-8' : idx === 2 ? '-mt-4' : idx === 3 ? 'mt-4' : ''}`}
+                  className="group bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 space-y-4 hover:bg-white/15 transition-all duration-500 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl animate-fade-in-up"
                   style={{ animationDelay: `${item.delay}ms` }}
                 >
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center transition-transform duration-300 group-hover-rotate">
                     <item.icon className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="text-white font-semibold text-lg">{item.title}</h3>
-                  <p className="text-white/80 text-sm">{item.desc}</p>
+                  <h3 className="text-white font-semibold text-xl">{item.title}</h3>
+                  <p className="text-white/80 text-base">{item.desc}</p>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white/90 text-xs font-medium">
                     Learn more →
                   </div>
@@ -601,7 +780,7 @@ export default function CampaignsBrowser() {
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             {/* Filter Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-gray-200/50 shadow-sm relative z-40 overflow-visible">
               <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
                 <span className="font-medium">Showing campaigns in</span>
 
@@ -616,8 +795,8 @@ export default function CampaignsBrowser() {
                     {getCategoryName()}
                     <ChevronDown className="h-4 w-4" />
                   </button>
-                  {showCategoryDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-20 py-2 max-h-80 overflow-y-auto animate-fade-in">
+                    {showCategoryDropdown && (
+                    <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2 max-h-80 overflow-y-auto animate-fade-in">
                       {categories.map((category) => (
                         <button
                           key={category.id}
@@ -650,7 +829,7 @@ export default function CampaignsBrowser() {
                     <ChevronDown className="h-4 w-4" />
                   </button>
                   {showSortDropdown && (
-                    <div className="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-xl z-20 py-2 animate-fade-in">
+                    <div className="absolute top-full left-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-xl z-50 py-2 animate-fade-in">
                       {sortOptions.map((option) => (
                         <button
                           key={option.id}
@@ -710,82 +889,7 @@ export default function CampaignsBrowser() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {sortedCampaigns.map((c, idx) => (
-                  <div
-                    key={c.id}
-                    className="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fade-in-up"
-                    style={{ animationDelay: `${idx * 50}ms` }}
-                  >
-                    {c.image && (
-                      <div className="relative h-48 overflow-hidden bg-gray-100">
-                        <img
-                          src={c.image}
-                          alt={c.title}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                        />
-                        {c.fundtracer_verified && (
-                          <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg animate-pulse">
-                            <BadgeCheck className="h-3 w-3" />
-                            Verified
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <div className="p-6 space-y-4">
-                      <div className="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                        {c.category.name}
-                      </div>
-                      
-                      <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors duration-300 line-clamp-2">
-                        {c.title}
-                      </h3>
-                      
-                      <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                        {c.description}
-                      </p>
-
-                      <div className="space-y-2 pt-2">
-                        <div className="relative h-2 bg-gray-100 rounded-full w-full overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-                          <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-1000"
-                            style={{ width: `${Math.min(c.progress_percentage, 100)}%` }}
-                          />
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-semibold text-gray-900">
-                            {formatCurrency(c.raised_amount)} raised
-                          </span>
-                          <span className="text-gray-600">{c.progress_percentage}%</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3.5 w-3.5" />
-                          <span>{c.donation_count} donors</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <TrendingUp className="h-3.5 w-3.5" />
-                          <span>Goal: {formatCurrency(c.goal_amount)}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2 pt-2">
-                        <button
-                          onClick={() => window.location.href = `/campaigns/${c.id}`}
-                          className="flex-1 border-2 border-blue-600 text-blue-600 py-2.5 rounded-xl hover:bg-blue-50 transition-all font-semibold text-sm hover:scale-105 duration-200"
-                        >
-                          View Details
-                        </button>
-                        <button
-                          onClick={() => window.location.href = `/campaigns/${c.id}/donate`}
-                          className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 rounded-xl hover:shadow-xl transition-all font-semibold text-sm hover:scale-105 duration-200"
-                        >
-                          Donate Now
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <CampaignCardInteractive key={c.id} campaign={c} index={idx} currentUserId={currentUserId} />
                 ))}
               </div>
             )}
