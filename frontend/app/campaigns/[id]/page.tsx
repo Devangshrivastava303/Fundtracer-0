@@ -486,6 +486,10 @@ const CampaignDetailPage = () => {
                 campaignTitle={campaign.title}
                 refreshTrigger={milestonesRefreshTrigger}
                 isDonor={isDonor}
+                isCreator={isCreator}
+                onUploadSuccess={() => {
+                  setMilestonesRefreshTrigger(prev => prev + 1);
+                }}
               />
             )}
 

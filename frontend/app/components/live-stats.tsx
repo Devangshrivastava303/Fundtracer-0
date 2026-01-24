@@ -87,13 +87,42 @@ function AnimatedCounter({ value, prefix, suffix }: { value: number; prefix: str
 }
 
 export function LiveStats() {
+  const [visibleStats, setVisibleStats] = useState<Set<string>>(new Set())
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          stats.forEach((stat, idx) => {
+            setTimeout(() => {
+              setVisibleStats((prev) => new Set([...prev, stat.label]))
+            }, idx * 100)
+          })
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <div className="w-full">
+    <div ref={containerRef} className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-2">
-        {stats.map((stat) => (
+        {stats.map((stat, index) => (
           <div 
-            key={stat.label} 
-            className="group relative bg-white rounded-[2rem] p-6 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-2 border border-slate-100/50"
+            key={stat.label}
+            className={`group relative bg-white rounded-[2rem] p-6 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-2 border border-slate-100/50 cursor-pointer transform ${
+              visibleStats.has(stat.label) ? 'stat-card-animate' : 'opacity-0 translate-y-8'
+            }`}
+            style={{
+              animationDelay: visibleStats.has(stat.label) ? `${index * 0.1}s` : '0s',
+            }}
           >
             {/* Subtle Gradient Glow on Hover */}
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-[0.02] rounded-[2rem] transition-opacity duration-500`} />
@@ -120,4 +149,4 @@ export function LiveStats() {
       </div>
     </div>
   )
-}
+  }
