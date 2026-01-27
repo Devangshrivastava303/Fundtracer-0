@@ -1,4 +1,4 @@
-# FundTracer
+# Anushk Sharma
 
 FundTracer is a **transparent, milestone-based fundraising and donation tracking platform** designed to build trust between donors, individuals, and NGOs. It ensures that every donated rupee is **tracked, verified, and reported** using modern technologies like **AI chatbots, AWS verification services, and geotagged evidence**.
 
