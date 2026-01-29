@@ -267,7 +267,7 @@ export default function CampaignsBrowser() {
   const [nextUrl, setNextUrl] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [selectedSort, setSelectedSort] = useState("trending");
+  const [selectedSort, setSelectedSort] = useState("newly-added");
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);

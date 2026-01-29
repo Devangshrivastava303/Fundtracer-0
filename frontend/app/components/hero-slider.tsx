@@ -1,10 +1,30 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
-
+// Animation styles for enhanced interactivity
+const animationStyles = `
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .animate-slide-up { animation: slideUp 0.8s ease-out; }
+  .category-badge { animation: slideDown 0.6s ease-out; }
+  .headline-animated { animation: slideUp 0.8s ease-out 0.1s backwards; }
+  .subtitle-animated { animation: slideUp 0.8s ease-out 0.2s backwards; }
+  .button-animated { animation: slideUp 0.8s ease-out 0.3s backwards; }
+`
 const slides = [
   {
     id: 1,
@@ -86,6 +106,7 @@ const slides = [
 export function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const router = useRouter()
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
@@ -110,11 +131,13 @@ export function HeroSlider() {
   }
 
   return (
-    <section
-      className="relative h-[90vh] min-h-[600px] w-full overflow-hidden pt-16"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
+    <>
+      <style>{animationStyles}</style>
+      <section
+        className="relative h-[90vh] min-h-[600px] w-full overflow-hidden pt-16"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
       {/* Slides */}
       {slides.map((slide, index) => (
         <div
@@ -126,8 +149,12 @@ export function HeroSlider() {
         >
           {/* Background Image */}
           <div
-            className={cn("absolute inset-0 bg-cover bg-center", "backgroundImage")}
-            style={{ "--bg-image": `url(${slide.image})` } as React.CSSProperties}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${slide.image})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+            }}
           />
           {/* Overlay Gradient */}
           <div className="absolute inset-0 bg-gradient-to-r from-foreground/80 via-foreground/50 to-transparent" />
@@ -173,13 +200,18 @@ export function HeroSlider() {
                 className={cn("flex flex-wrap gap-4", index === currentSlide && "animate-slide-up")}
                 style={{ animationDelay: "0.4s" }}
               >
-                <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                <Button 
+                  size="lg" 
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                  onClick={() => router.push("/campaigns")}
+                >
                   Explore Campaigns
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent"
+                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 bg-transparent cursor-pointer"
+                  onClick={() => router.push("/how-it-works")}
                 >
                   How It Works
                 </Button>
@@ -266,5 +298,6 @@ export function HeroSlider() {
         ))}
       </div>
     </section>
+    </>
   )
 }

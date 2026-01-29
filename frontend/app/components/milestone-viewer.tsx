@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, Clock, AlertCircle, Calendar, TrendingUp, Lock } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, Calendar, TrendingUp, Lock, Upload, X } from 'lucide-react';
 
 interface Milestone {
   id: string;
@@ -21,16 +21,23 @@ interface MilestoneViewerProps {
   campaignTitle: string;
   refreshTrigger?: number;
   isDonor?: boolean;
+  isCreator?: boolean;
+  onUploadSuccess?: () => void;
 }
 
 export function MilestoneViewer({ 
   campaignId, 
   campaignTitle, 
   refreshTrigger = 0,
-  isDonor = false 
+  isDonor = false,
+  isCreator = false,
+  onUploadSuccess
 }: MilestoneViewerProps) {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+  const [uploadingMilestoneId, setUploadingMilestoneId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchMilestones();
@@ -61,6 +68,55 @@ export function MilestoneViewer({
       setMilestones([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUploadClick = (milestone: Milestone) => {
+    setSelectedMilestone(milestone);
+    setUploadModalOpen(true);
+  };
+
+  const handleFileUpload = async (files: FileList) => {
+    if (!files.length || !selectedMilestone) return;
+
+    const formData = new FormData();
+    
+    // Add all selected files
+    for (let i = 0; i < files.length; i++) {
+      formData.append('documents', files[i]);
+    }
+
+    try {
+      setUploadingMilestoneId(selectedMilestone.id);
+      
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/campaigns/${campaignId}/milestones/${selectedMilestone.id}/complete/`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert('Error uploading: ' + (errorData.error || 'Unknown error'));
+        return;
+      }
+
+      // Success
+      setUploadModalOpen(false);
+      setSelectedMilestone(null);
+      fetchMilestones();
+      if (onUploadSuccess) onUploadSuccess();
+    } catch (error) {
+      console.error('Error uploading:', error);
+      alert('Failed to upload milestone documents');
+    } finally {
+      setUploadingMilestoneId(null);
     }
   };
 
@@ -171,6 +227,20 @@ export function MilestoneViewer({
                     )}
                   </div>
 
+                  {/* Upload Button - Only for creators and incomplete milestones */}
+                  {isCreator && !milestone.is_completed && (
+                    <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <button
+                        onClick={() => handleUploadClick(milestone)}
+                        disabled={uploadingMilestoneId === milestone.id}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {uploadingMilestoneId === milestone.id ? 'Uploading...' : 'Upload Proof (Images/PDFs)'}
+                      </button>
+                    </div>
+                  )}
+
                   {/* Image - Blur if not a donor */}
                   {milestone.image && (
                     <div className="mb-4 rounded-lg overflow-hidden relative">
@@ -257,6 +327,62 @@ export function MilestoneViewer({
               <p className="text-sm text-green-700">
                 Thank you for supporting this campaign. All planned milestones have been successfully completed.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {uploadModalOpen && selectedMilestone && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">
+                Upload Proof for: {selectedMilestone.title}
+              </h3>
+              <button
+                onClick={() => setUploadModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-sm text-gray-600 mb-4">
+                Upload images or PDFs as proof of work completion. This will be visible to all donors.
+              </p>
+              <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-500 transition cursor-pointer bg-blue-50 relative overflow-hidden">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*,.pdf"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleFileUpload(e.target.files);
+                    }
+                  }}
+                  disabled={uploadingMilestoneId !== null}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                />
+                <Upload className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-sm font-medium text-gray-900">
+                  {uploadingMilestoneId === selectedMilestone.id ? 'Uploading...' : 'Click to upload or drag files'}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Images (JPG, PNG) or PDFs up to 10MB each
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setUploadModalOpen(false)}
+                disabled={uploadingMilestoneId !== null}
+                className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
