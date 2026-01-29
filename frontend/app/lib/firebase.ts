@@ -4,7 +4,7 @@ import { getAuth } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCW3WtXrVDoi-_U6JcE0968jZgVRPwQRC8",
+  apiKey: "YOUr-API-KEY-HERE",
   authDomain: "fundtracer-eca34.firebaseapp.com",
   projectId: "fundtracer-eca34",
   storageBucket: "fundtracer-eca34.firebasestorage.app",
